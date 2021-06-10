@@ -48,7 +48,7 @@ mount /dev/sda3 /mnt/home
 Bootstrap the system by running this command
 
 ```
-pacstrap /mnt base base-devel
+pacstrap /mnt base linux linux-firmware
 ```
 
 It can take a few minutes to complete.
