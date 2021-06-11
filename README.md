@@ -1,8 +1,10 @@
 # arch-linux-vm-setup
 
-Here are the steps for Arch Linux installation on a VM. 
+Here are the steps for Arch Linux installation on a VM and also for configuring it to have a desktop and internet connection. 
 
-## Create the VM and Boot
+## Installation 
+
+### Create the VM and Boot
 
 1. Download the Arch Linux ISO image (https://www.techspot.com/downloads/5571-arch-linux.html)
 2. Create a Virtual Machine on VirtualBox (Make sure the VM and VirtualBox are on the same drive (both under C:/ or D:/))
@@ -10,7 +12,7 @@ Here are the steps for Arch Linux installation on a VM.
 4. Start the VM
 5. Select "Boot Arch Linux", the first option on setup menu. Then the system should start booting.
 
-## Partition the Hard Disk
+### Partition the Hard Disk
 
 1. We will create 3 partitions on the virtual hard disk: The first one will be the primary root partition with half the size of your total mem. size (if you total mem. is 20G, this should be 10G). The second one will be the swap partition, which will be twice the initial RAM allocation (if you allocate 1024M of RAM, this will be 2048). The third will be the logical partition with the remaining memory.
 2. Use __cfdisk__ command to create partitions
@@ -19,7 +21,7 @@ Here are the steps for Arch Linux installation on a VM.
 5. Repeat the step 4, 2 times to create the other partitions.
 6. Select __write__ to flush the changes. Type yes to confirm.
 
-## Format the Partitions
+### Format the Partitions
 
 Run the following commands to format the partitions you created in the previous step.
 
@@ -92,47 +94,67 @@ __LANG=en_US.UTF-8__
 
 5. Synchronize the zone information: Following command will give you a list of available zones.
 
-``` ls /usr/share/zoneinfo ```
+``` 
+ls /usr/share/zoneinfo
+```
 
 6. Select your zone, I will be using CET
 
-``` ln –s /usr/share/zoneinfo/CET /etc/localtime ```
+``` 
+ln –s /usr/share/zoneinfo/CET /etc/localtime
+```
 
 7. Synchronize the hardware clock
 
-``` hwclock --systohc --utc ```
+```
+hwclock --systohc --utc
+```
 
 8. Set the root user password
 
-``` passwd ```
+```
+passwd 
+```
 
 ### Setup Hostname and Networking
 
-``` nano /etc/hostname ```
+``` 
+nano /etc/hostname
+```
 
 1. Type any name as your hostname, save and quit.
 
 2. Install dhcpcd to setup DHCP client
 
-``` pacman -S dhcpcd ```
+```
+pacman -S dhcpcd
+```
 
 3. Enable DHCP client
 
-``` systemctl enable dhcpcd ```
+```
+systemctl enable dhcpcd
+```
 
 ### Install the Bootloader
 
 1. Initiate the grub installation
 
-``` pacman -S grub os-prober ```
+```
+pacman -S grub os-prober
+```
 
 2. Install the grub boot loader to the hard disk by typing 
 
-``` grub-install /dev/sda ```
+```
+grub-install /dev/sda
+```
 
 3. Configure it:
 
-``` grub-mkconfig –o /boot/grub/grub.cfg ```
+```
+grub-mkconfig –o /boot/grub/grub.cfg
+```
 
 4. Exit from chroot and reboot the system
 
@@ -145,3 +167,79 @@ reboot
 
 1. After rebooting select "Boot existing OS" to boot Arch Linux
 2. Login with your root name & password. 
+
+## After Installation
+
+### Setup your Network
+
+Download a network manager.
+
+```
+pacman -S networkmanager network-manager-applet
+```
+
+### Enable NetworkManager Service
+
+```
+systemctl start NetworkManager
+systemctl enable NetworkManager
+nmtui
+```
+
+### Add a user
+
+```
+useradd -m -g wheel <your_user>
+passwd <your_user>
+```
+
+Switch to newly created user
+
+```
+su <your_user>
+```
+
+### Install a Desktop Manager
+
+Install lightdm as the desktop manager
+
+```
+pacman -S lightdm
+pacman -S light-dm-gtk-greeter
+pacman -S lightdm-gtk-greeter-settings
+```
+
+Enable lightdm service
+
+```
+systemctl enable lightdm
+```
+Lightdm will be enabled after rebooting
+
+```
+systemctl list-unit-files --state=enabled
+```
+
+### Install a Desktop Environment
+
+We will install xfce. You can install KDE, Gnome or whatever you like.
+
+```
+pacman -S xfce4
+```
+
+### Install a Terminal Emulator
+
+Other emulator options include st, rxvt-unicode, termite and terminator.
+
+```
+pacman -S alacritty
+```
+
+### Install a Web Browser and File Manager
+
+```
+pacman -S firefox
+pacman -S nautilus
+```
+
